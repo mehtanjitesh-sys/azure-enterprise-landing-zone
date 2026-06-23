@@ -1,66 +1,130 @@
 # Azure Enterprise Landing Zone Reference
 
-This repository is a Fortune 500-style Azure greenfield reference architecture and IaC starter kit.
+This repository is an opinionated Fortune 500-style Azure enterprise landing zone blueprint.
 
-It starts with governance, then builds the platform foundation for:
+It is built from the point of view of a principal cloud/platform architect who is responsible for the full company cloud foundation: governance, identity, network, security, operations, Microsoft 365/Intune, AVD, AKS, container workloads, CI/CD, and IaC.
 
-- Azure management groups, subscriptions, policy, and RBAC
-- Okta to Microsoft Entra ID identity integration
-- Microsoft 365 security, Intune, endpoint governance, and privileged access
-- Hub-spoke networking and private connectivity
-- Security operations with Microsoft Defender, Sentinel-ready logging, and diagnostics
-- Azure Virtual Desktop platform considerations
-- First application landing zone using AKS, containers, Azure Container Registry, Key Vault, private networking, and CI/CD
-- Terraform and Bicep implementation paths
-- GitHub Actions with plan, manual approval, and apply stages
+## What This Is
+
+This is not a tiny demo. It is an enterprise reference implementation that defines:
+
+- Cloud operating model
+- Management group and subscription hierarchy
+- Governance standards
+- Azure Policy baseline
+- Azure RBAC model
+- Okta to Microsoft Entra ID identity pattern
+- Microsoft 365 and Intune security posture
+- Hub-spoke network foundation
+- Security operations and logging model
+- Azure Virtual Desktop landing zone pattern
+- Production AKS application landing zone
+- Terraform-first IaC implementation
+- Bicep examples for Azure-native teams
+- GitHub Actions plan, manual approval, apply, container build, and AKS deploy flows
+- Kubernetes workload security and autoscaling examples
+
+## Architecture Docs
+
+Start here:
+
+- `docs/architecture.md`
+- `docs/standards/governance-standards.md`
+- `docs/standards/security-control-matrix.md`
+- `docs/standards/aks-platform-standard.md`
+- `docs/standards/platform-operating-model.md`
+- `docs/implementation-runbook.md`
+- `docs/github-setup.md`
+
+## IaC Structure
+
+```text
+terraform/
+  envs/prod/
+  modules/
+    policy/
+    rbac/
+    network-hub/
+    aks-workload/
+
+bicep/
+  main.bicep
+  modules/
+    governance/
+    network/
+    aks/
+
+kubernetes/
+  app001/
+    namespace.yaml
+    deployment.yaml
+    hpa.yaml
+```
+
+## Enterprise Baseline
+
+The Terraform implementation includes:
+
+- Management groups
+- Enterprise policy initiative
+- Required tags
+- Allowed locations
+- Public IP guardrail
+- Storage public access guardrail
+- Storage secure transfer guardrail
+- Key Vault soft delete and purge protection guardrails
+- AKS private cluster and Azure Policy audits
+- VM SKU control
+- RBAC assignments
+- Hub network starter
+- Private AKS workload landing zone
+- ACR Premium
+- Key Vault Premium
+- Log Analytics
+- AKS node autoscaling
+- Workload identity and OIDC issuer
+- Key Vault secrets provider
+
+## Production Deployment Flow
+
+```text
+Pull request
+  -> Terraform validate and plan
+  -> Review
+  -> Merge to main
+  -> GitHub production environment approval
+  -> Terraform apply through OIDC
+```
 
 ## Important
 
-This is a reference starter, not a one-click production deployment. A real enterprise rollout needs tenant-specific design workshops, subscription IDs, identity group object IDs, IP ranges, compliance mappings, operational owners, DNS zones, connectivity choices, and security exceptions.
+This repo is a strong enterprise starter, but a real company rollout still requires tenant-specific decisions:
 
-## Recommended Order
+- Tenant ID
+- Management group names
+- Subscription IDs
+- Approved regions
+- IP address plan
+- Entra group object IDs
+- Okta integration pattern
+- Microsoft 365 licensing
+- Defender/Sentinel licensing
+- AVD persona model
+- Data classification requirements
+- Regulatory compliance mapping
+
+## Recommended First Steps
 
 1. Read `docs/architecture.md`.
-2. Fill in `terraform/envs/prod/terraform.tfvars.example` and rename it to `terraform.tfvars`.
-3. Create the Terraform state storage account manually or through a bootstrap pipeline.
-4. Configure GitHub repository secrets and environments.
-5. Run pull request validation.
-6. Approve the `production` environment in GitHub Actions.
-7. Apply through pipeline.
-
-## Repository Layout
-
-```text
-docs/
-  architecture.md                  Enterprise architecture document
-  implementation-runbook.md         How to roll this out
-terraform/
-  envs/prod/                        Terraform root module
-  modules/policy/                   Azure Policy initiative and assignments
-  modules/rbac/                     RBAC assignments
-  modules/network-hub/              Hub networking
-  modules/aks-workload/             First AKS workload platform
-bicep/
-  main.bicep                        Bicep orchestration example
-  modules/                          Bicep modules for governance, network, AKS
-policies/
-  custom-allowed-locations.json
-  custom-require-tags.json
-.github/workflows/
-  terraform-plan.yml
-  terraform-apply.yml
-```
-
-## GitHub Secrets
-
-Use OpenID Connect if possible. Configure:
-
-- `AZURE_CLIENT_ID`
-- `AZURE_TENANT_ID`
-- `AZURE_SUBSCRIPTION_ID`
-
-Create a GitHub environment named `production` and require manual reviewers. The apply workflow targets that environment.
+2. Review the governance standards.
+3. Replace example object IDs in `terraform/envs/prod/terraform.tfvars.example`.
+4. Bootstrap Terraform remote state.
+5. Configure GitHub OIDC and environments.
+6. Run Terraform plan.
+7. Apply governance first.
+8. Deploy platform services.
+9. Deploy the first AKS landing zone.
 
 ## Sources
 
-This design follows Microsoft guidance for Azure landing zones, Azure Policy, Azure RBAC, Intune security baselines, and AKS baseline architecture. See the source links in `docs/architecture.md`.
+This design follows Microsoft guidance for Azure landing zones, Azure Policy, Azure RBAC, Intune security baselines, and AKS baseline architecture. Links are included in `docs/architecture.md`.

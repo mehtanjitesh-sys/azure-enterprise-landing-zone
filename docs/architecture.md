@@ -1,373 +1,466 @@
 # Enterprise Azure Landing Zone Architecture
 
-## 1. Executive Summary
+## 1. Executive Architecture Statement
 
-This document defines a greenfield Azure enterprise platform for a Fortune 500 organization. The architecture starts with governance because governance decides the operating model before teams deploy workloads. The platform uses Microsoft Cloud Adoption Framework Azure landing zone principles, Microsoft Entra ID, Microsoft 365 security, Intune, Azure Policy, Azure RBAC, hub-spoke networking, centralized logging, Azure Virtual Desktop, and Kubernetes-based workload hosting.
+This platform is designed as the controlled cloud foundation for a Fortune 500 enterprise. It assumes Azure is not a side project. Azure is treated as a production-grade operating environment for regulated workloads, global applications, remote workforce capabilities, security operations, and modern container platforms.
 
-The target state is a secure, scalable, automated cloud foundation where application teams can deploy containerized workloads through governed landing zones without bypassing enterprise controls.
+The architecture is intentionally opinionated:
 
-## 2. Reference Guidance
+- Governance is the first deployment, not an afterthought.
+- Identity is the control plane.
+- Policy defines the platform contract.
+- Networking is private by default.
+- Production change happens only through Git, review, plan, approval, and pipeline.
+- Application teams get speed, but only inside guardrails.
+- Security, cost, reliability, and operations are engineered into the landing zone.
 
-This design is aligned to these Microsoft references:
+The goal is to give the company a repeatable cloud factory: standardized subscriptions, automated landing zones, secure connectivity, monitored workloads, governed Kubernetes platforms, and clear operational ownership.
 
-- Azure landing zones provide a standardized way to set up and manage Azure at scale with security, compliance, and operational consistency: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/
-- Azure landing zone design areas include billing and tenant, identity and access, resource organization, networking, security, management, governance, and platform automation: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-areas
-- Azure Policy enforces organizational standards and assesses compliance at scale: https://learn.microsoft.com/en-us/azure/governance/policy/overview
-- Azure RBAC should follow least privilege and avoid broad privileged assignments: https://learn.microsoft.com/en-us/azure/role-based-access-control/best-practices
-- AKS baseline architecture should use private networking, managed identity, Key Vault, Azure Policy, monitoring, and secure ingress patterns: https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/containers/aks/baseline-aks
-- Intune security baselines provide Microsoft-recommended configuration groups for Windows and endpoint security: https://learn.microsoft.com/en-us/intune/device-security/security-baselines/overview
+## 2. Architecture North Star
 
-## 3. Architecture Principles
+The enterprise cloud estate is organized into four planes:
 
-1. Governance first: management groups, policy, RBAC, and compliance controls exist before workloads.
-2. Identity is the control plane: Okta, Microsoft Entra ID, Conditional Access, Privileged Identity Management, and group-based access define who can do what.
-3. Everything is code: Azure resources, policies, RBAC, network, AKS, and workload platforms are managed through Terraform or Bicep.
-4. No direct production changes: production changes run through GitHub pull requests, plan review, manual approval, and pipeline apply.
-5. Least privilege by default: avoid subscription Owner, use custom roles where justified, and scope access to management group, subscription, resource group, or workload level.
-6. Private by default: management, workload, container registry, Key Vault, storage, AKS API, and databases use private connectivity where practical.
-7. Central observability: activity logs, diagnostic settings, security alerts, AKS logs, endpoint signals, and Microsoft 365 security data feed central operations.
-8. Landing zone autonomy with guardrails: workload teams own application deployment, while platform teams own shared policy, network, identity, and security controls.
+| Plane | Purpose | Owned By |
+|---|---|---|
+| Governance plane | Management groups, policies, RBAC, naming, tagging, budgets, compliance | Cloud Governance Board |
+| Platform plane | Connectivity, identity integration, management, logging, security services | Platform Engineering |
+| Workload plane | Application landing zones, AKS, PaaS, data services, app networks | Product and App Teams |
+| Endpoint and productivity plane | Microsoft 365, Intune, Conditional Access, AVD, endpoint security | EUC and Security Teams |
 
-## 4. Target Management Group Model
+The core rule is simple: platform teams build paved roads; application teams move fast on those roads.
+
+## 3. Microsoft-Aligned Design Areas
+
+This design follows the Azure landing zone design areas:
+
+- Billing and tenant setup
+- Identity and access management
+- Resource organization
+- Network topology and connectivity
+- Security
+- Management and monitoring
+- Governance
+- Platform automation and DevOps
+
+Reference guidance:
+
+- Azure landing zones: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/
+- Azure landing zone design areas: https://learn.microsoft.com/en-us/azure/cloud-adoption-framework/ready/landing-zone/design-areas
+- Azure Policy: https://learn.microsoft.com/en-us/azure/governance/policy/overview
+- Azure RBAC best practices: https://learn.microsoft.com/en-us/azure/role-based-access-control/best-practices
+- AKS baseline architecture: https://learn.microsoft.com/en-us/azure/architecture/reference-architectures/containers/aks/baseline-aks
+- Intune security baselines: https://learn.microsoft.com/en-us/intune/device-security/security-baselines/overview
+
+## 4. Enterprise Principles
+
+### 4.1 Governance
+
+1. Every subscription belongs to a management group.
+2. Every management group has a defined purpose and policy baseline.
+3. Every production workload has an accountable business owner, technical owner, cost center, and data classification.
+4. Every exception has an expiration date.
+5. Every privileged role is assigned to a group, preferably PIM eligible, not permanent.
+6. Every deployment is traceable to a pull request, pipeline run, and approval.
+
+### 4.2 Security
+
+1. No public access unless explicitly approved.
+2. No shared secrets in code, variables, pipeline logs, or container images.
+3. Managed identity and workload identity are preferred over service principal secrets.
+4. Defender for Cloud is enabled for production subscriptions.
+5. Logs required for audit, detection, and incident response are centralized.
+6. Key Vault uses RBAC, soft delete, purge protection, diagnostic settings, and private endpoint for production.
+
+### 4.3 Network
+
+1. Hub-spoke is the default enterprise topology.
+2. Egress is controlled through Azure Firewall or an approved network virtual appliance.
+3. Private endpoints are required for critical PaaS services.
+4. DNS is centrally managed.
+5. Spoke networks do not peer directly to each other except by approved pattern.
+6. Network CIDR allocation is owned by the network platform team.
+
+### 4.4 Application Platform
+
+1. AKS is the default container platform for complex services.
+2. App Service or Container Apps can be used for simpler services, but must follow the same identity, network, policy, and observability standards.
+3. AKS clusters are private by default.
+4. Production clusters run across availability zones where the region supports it.
+5. Autoscaling is mandatory: cluster autoscaler for nodes and HPA/KEDA for workloads.
+6. Containers run as non-root with resource requests, limits, probes, and restricted capabilities.
+
+## 5. Management Group Hierarchy
 
 ```text
 Tenant Root Group
-└── contoso
-    ├── platform
-    │   ├── identity
-    │   ├── connectivity
-    │   └── management
-    ├── landing-zones
-    │   ├── corp
-    │   ├── online
-    │   └── avd
-    ├── sandbox
-    └── decommissioned
+`-- contoso
+    |-- platform
+    |   |-- identity
+    |   |-- connectivity
+    |   `-- management
+    |-- landing-zones
+    |   |-- corp
+    |   |-- online
+    |   |-- data
+    |   |-- aks
+    |   `-- avd
+    |-- sandbox
+    |-- migration
+    `-- decommissioned
 ```
 
-### Purpose
+### 5.1 Management Group Intent
 
-- `platform`: shared enterprise services.
-- `identity`: domain services, identity integration, privileged access components.
-- `connectivity`: hub networking, firewall, VPN, ExpressRoute, DNS, private resolver.
-- `management`: Log Analytics, Sentinel-ready workspaces, automation, update management, backup, recovery.
-- `landing-zones`: application landing zones.
-- `corp`: private/internal workloads.
-- `online`: internet-facing workloads.
-- `avd`: Azure Virtual Desktop host pools and session host environments.
-- `sandbox`: controlled experimentation with budget and policy limits.
-- `decommissioned`: retained subscriptions during migration exit or audit hold.
-
-## 5. Subscription Model
-
-| Subscription | Owner | Purpose |
+| Management Group | Intent | Default Enforcement |
 |---|---|---|
-| `sub-platform-identity-prod` | Identity Platform | Entra integration, domain services, privileged identity support |
-| `sub-platform-connectivity-prod` | Network Platform | Hub VNet, Azure Firewall, Private DNS, ExpressRoute/VPN |
-| `sub-platform-management-prod` | Cloud Operations | Log Analytics, Sentinel-ready workspace, Defender exports, backup |
-| `sub-avd-prod` | EUC Platform | AVD host pools, workspace, app groups, golden image integration |
-| `sub-app001-prod` | Application Team + Platform | First application AKS landing zone |
-| `sub-sandbox-shared` | Platform | Time-bound experimentation |
+| `platform` | Shared services owned by platform teams | Strict |
+| `identity` | Identity integration, domain dependencies, privileged access support | Strict |
+| `connectivity` | Hub network, DNS, firewall, VPN, ExpressRoute | Strict |
+| `management` | Logging, monitoring, backup, security exports | Strict |
+| `landing-zones` | Parent for application subscriptions | Standard |
+| `corp` | Internal workloads without direct internet exposure | Standard |
+| `online` | Internet-facing workloads | Strict network/security |
+| `data` | Data platforms, analytics, regulated storage | Strict data controls |
+| `aks` | Enterprise Kubernetes workload subscriptions | Strict container baseline |
+| `avd` | Azure Virtual Desktop workloads | EUC baseline |
+| `sandbox` | Time-bound experimentation | Budget-limited |
+| `migration` | Temporary migration staging | Audit-first |
+| `decommissioned` | Retained inactive subscriptions | Locked down |
 
-## 6. Governance Baseline
+## 6. Subscription Architecture
 
-### Policy Strategy
+| Subscription | Management Group | Purpose |
+|---|---|---|
+| `sub-platform-identity-prod` | `identity` | Entra integration, Okta sync patterns, domain and identity support services |
+| `sub-platform-connectivity-prod` | `connectivity` | Hub VNet, Azure Firewall, DNS, private resolver, ExpressRoute/VPN |
+| `sub-platform-management-prod` | `management` | Log Analytics, Sentinel-ready workspace, Defender exports, automation |
+| `sub-platform-security-prod` | `management` | Security tooling, automation, incident response assets |
+| `sub-avd-prod` | `avd` | AVD host pools, workspace, app groups, session hosts |
+| `sub-app001-prod` | `aks` | First production AKS application platform |
+| `sub-app001-nonprod` | `aks` | Dev/test/stage for first application |
+| `sub-data-prod` | `data` | Enterprise data services |
+| `sub-sandbox-shared` | `sandbox` | Controlled labs and learning |
 
-Policies are assigned at management group scope where possible. Start in `Audit` mode during discovery, then move to `Deny`, `Modify`, or `DeployIfNotExists` after exception processes exist.
+## 7. Governance Baseline
 
-Baseline policy initiatives:
+Governance is implemented with Azure Policy, Azure RBAC, management group structure, resource locks, budgets, Defender for Cloud, diagnostic settings, and Git-based change control.
 
-- Allowed Azure regions
-- Required tags: `CostCenter`, `Environment`, `Owner`, `DataClassification`, `BusinessUnit`
-- Deny public IP creation except approved scopes
-- Require diagnostic settings to central Log Analytics
+### 7.1 Enterprise Tag Standard
+
+Required tags:
+
+| Tag | Example | Purpose |
+|---|---|---|
+| `Environment` | `prod`, `nonprod`, `sandbox` | Environment classification |
+| `Owner` | `platform-network`, `app001-team` | Technical accountability |
+| `BusinessUnit` | `finance`, `operations`, `digital` | Business alignment |
+| `CostCenter` | `cc-100245` | Chargeback/showback |
+| `DataClassification` | `public`, `internal`, `confidential`, `restricted` | Security and compliance handling |
+| `Criticality` | `tier0`, `tier1`, `tier2`, `tier3` | Resilience and support priority |
+| `ManagedBy` | `terraform`, `bicep`, `manual-exception` | Ownership source |
+
+### 7.2 Policy Baseline
+
+The initial policy initiative enforces or audits:
+
+- Allowed regions
+- Required enterprise tags
+- Deny public IP creation except approved landing zones
+- Deny public blob access
 - Require secure transfer for storage
-- Deny storage account public blob access
-- Require Key Vault purge protection and soft delete
-- Require Defender plans for cloud workloads
-- Require AKS Azure Policy add-on
-- Require private endpoints for approved PaaS services
-- Audit VMs without approved endpoint protection
-- Audit resources missing backup where applicable
+- Require Key Vault soft delete
+- Require Key Vault purge protection
+- Audit unrestricted network access
+- Audit missing diagnostics
+- Audit AKS clusters without Azure Policy
+- Audit AKS clusters without private API server
+- Deny unapproved VM SKU families
 
-### Exception Model
+### 7.3 Enforcement Strategy
 
-Every policy exemption must include:
+| Control Type | Initial Mode | Target Mode |
+|---|---|---|
+| Required tags | Deny | Deny |
+| Allowed locations | Deny | Deny |
+| Public blob access | Deny | Deny |
+| Secure storage transfer | Deny | Deny |
+| Key Vault soft delete | Deny | Deny |
+| Key Vault purge protection | Audit | Deny after migration readiness |
+| Diagnostics | Audit | DeployIfNotExists |
+| Defender plans | Audit | DeployIfNotExists |
+| Private endpoints | Audit | Deny for restricted data |
 
+## 8. RBAC and Privileged Access
+
+All access is group-based. Users are not assigned directly to Azure roles except emergency break-glass identities.
+
+| Group | Scope | Role | Assignment Type |
+|---|---|---|---|
+| `az-platform-breakglass-admins` | Tenant root | Owner/User Access Administrator | Permanent, limited accounts |
+| `az-platform-owners` | `platform` MG | Owner | PIM eligible |
+| `az-policy-admins` | Tenant root | Resource Policy Contributor | PIM eligible |
+| `az-network-admins` | Connectivity subscription | Network Contributor | PIM eligible |
+| `az-security-admins` | Tenant root | Security Admin/Security Reader | PIM eligible |
+| `az-soc-operators` | Management subscription | Microsoft Sentinel Contributor | PIM eligible |
+| `az-app001-devops-prod` | App001 prod RG | Contributor | PIM eligible |
+| `az-app001-readers-prod` | App001 prod RG | Reader | Permanent |
+| `az-app001-aks-admins` | AKS cluster | AKS RBAC Cluster Admin | PIM eligible |
+| `az-app001-aks-developers` | AKS namespaces | Kubernetes RBAC | Permanent or PIM by criticality |
+| `az-avd-admins` | AVD subscription | Desktop Virtualization Contributor | PIM eligible |
+| `az-avd-helpdesk` | AVD RG | Desktop Virtualization User Session Operator | Permanent |
+
+## 9. Identity: Okta to Microsoft Entra ID
+
+### 9.1 Target Position
+
+Okta can remain the authoritative workforce identity system, while Microsoft Entra ID is the authorization and policy enforcement plane for Azure, Microsoft 365, Intune, and AVD.
+
+### 9.2 Recommended Pattern
+
+1. Provision users and groups from Okta to Entra ID using SCIM where Okta is authoritative.
+2. Federate sign-in only after break-glass accounts, Conditional Access exclusions, and rollback plan are tested.
+3. Use Entra Conditional Access for Microsoft cloud access decisions.
+4. Use Intune compliance as a Conditional Access signal.
+5. Use Entra PIM for Azure and Entra privileged roles.
+6. Use separate admin accounts for privileged operations.
+7. Keep two cloud-only break-glass accounts excluded from federation and Conditional Access.
+
+## 10. Microsoft 365 and Intune
+
+Microsoft 365 and Intune are treated as part of the landing zone because endpoint posture affects cloud access.
+
+### 10.1 Microsoft 365 Security
+
+- Defender XDR enabled.
+- Defender for Office policies deployed in rings.
+- Audit logging enabled.
+- Purview sensitivity labels mapped to data classification.
+- SharePoint and OneDrive external sharing restricted by default.
+- Teams guest access governed by business-approved access packages.
+- Privileged Microsoft 365 roles use PIM.
+
+### 10.2 Intune Endpoint Baseline
+
+- Windows Autopilot for corporate provisioning.
+- Intune enrollment required for corporate endpoints.
+- Compliance policies for Windows, macOS, iOS, Android.
+- BitLocker required for Windows.
+- Defender for Endpoint onboarded.
+- Attack surface reduction rules deployed in audit, then block.
+- Local admin rights removed by default.
+- Update rings and quality update policies used for staged patching.
+- Device compliance required for Azure portal, Microsoft 365, and AVD access.
+
+## 11. Network Architecture
+
+### 11.1 Topology
+
+```text
+Connectivity Subscription
+`-- Hub VNet
+    |-- AzureFirewallSubnet
+    |-- AzureBastionSubnet
+    |-- GatewaySubnet
+    |-- Private DNS Resolver inbound subnet
+    |-- Private DNS Resolver outbound subnet
+    `-- Shared services subnet
+
+Application Subscription
+`-- App Spoke VNet
+    |-- AKS system node subnet
+    |-- AKS user node subnet
+    |-- Private endpoint subnet
+    |-- Ingress subnet
+    `-- Data subnet
+```
+
+### 11.2 Network Rules
+
+- Hub owns egress, ingress inspection, DNS, and hybrid connectivity.
+- Spokes use UDRs to route internet-bound traffic through firewall.
+- Private DNS zones are linked centrally.
+- App teams do not create arbitrary peerings.
+- Production PaaS services use private endpoints.
+- Internet-facing workloads use approved ingress patterns: Azure Front Door + WAF, Application Gateway WAF, or approved ingress controller.
+
+## 12. Security Operations
+
+### 12.1 Logging
+
+Required central logs:
+
+- Azure Activity Logs
+- Entra audit and sign-in logs
+- Azure Policy compliance
+- Defender for Cloud alerts
+- AKS control plane logs
+- AKS container logs
+- Azure Firewall logs
+- Key Vault audit events
+- Storage audit events
+- AVD connection and session logs
+- GitHub Actions audit trail where available
+
+### 12.2 Detection and Response
+
+- Security alerts route to SOC.
+- Production incidents have runbooks and severity mapping.
+- High-risk policy changes require security approval.
+- Break-glass usage triggers alert.
+- Public exposure findings are severity 1 unless explicitly approved.
+
+## 13. AKS Enterprise Platform
+
+The first application landing zone is designed as a production AKS platform.
+
+### 13.1 AKS Controls
+
+- Private cluster enabled.
+- Entra-integrated RBAC enabled.
+- Azure RBAC for Kubernetes enabled.
+- Azure CNI networking.
+- Azure network policy.
+- Azure Policy add-on enabled.
+- OIDC issuer and workload identity enabled.
+- System node pool isolated from user workloads.
+- User node pool uses autoscaling.
+- Availability zones enabled.
+- ACR Premium with admin user disabled.
+- Key Vault RBAC enabled with purge protection.
+- Container Insights enabled.
+- App workloads include requests, limits, probes, and restricted security context.
+
+### 13.2 Scale Design
+
+| Layer | Scale Mechanism |
+|---|---|
+| Pods | Horizontal Pod Autoscaler and KEDA |
+| Nodes | AKS cluster autoscaler |
+| Ingress | Application Gateway or NGINX ingress behind WAF |
+| Container registry | ACR Premium geo-replication if multi-region |
+| Secrets | Key Vault CSI driver and workload identity |
+| Deployment | Blue/green or canary release through GitOps |
+
+### 13.3 Production Readiness
+
+Before production:
+
+- Define namespace model.
+- Define ingress model.
+- Define certificate and DNS ownership.
+- Define backup and restore for stateful workloads.
+- Define patching and node image upgrade process.
+- Define cluster upgrade policy.
+- Define runtime security scanning.
+- Define incident response runbooks.
+
+## 14. Azure Virtual Desktop
+
+AVD gets its own landing zone because it has specialized endpoint, identity, storage, and support requirements.
+
+Standards:
+
+- Host pools by persona and region.
+- FSLogix profile storage on Azure Files Premium or Azure NetApp Files.
+- Session hosts managed through Intune where supported.
+- Golden images built through an image pipeline.
+- Access assigned through Entra groups.
+- Conditional Access requires MFA and compliant device unless approved exception.
+- AVD diagnostics exported centrally.
+- Helpdesk gets session operator roles only.
+
+## 15. IaC and CI/CD Architecture
+
+### 15.1 Repository Contract
+
+Every change must be:
+
+1. Proposed in Git.
+2. Reviewed in pull request.
+3. Validated by pipeline.
+4. Planned before apply.
+5. Approved for production.
+6. Applied by workload identity.
+7. Logged and auditable.
+
+### 15.2 Terraform Ownership
+
+Terraform owns:
+
+- Management groups
+- Policy definitions, initiatives, and assignments
+- RBAC assignments
+- Hub network starter
+- AKS app landing zone starter
+- ACR, Key Vault, Log Analytics
+
+### 15.3 Bicep Ownership
+
+Bicep examples are provided for Azure-native teams. Do not manage the same resources with Terraform and Bicep in production unless ownership boundaries are explicit.
+
+## 16. Exception and Waiver Process
+
+Exceptions require:
+
+- Policy name
+- Scope
 - Business justification
 - Expiration date
 - Risk owner
 - Compensating control
-- Approval from cloud governance board
+- Approval from security and cloud governance
 
-## 7. RBAC Model
+Permanent exceptions are not allowed. If an exception is long-lived, the standard must be reviewed.
 
-Use Entra security groups for role assignment. Do not assign roles directly to users except break-glass accounts.
-
-| Group | Scope | Role |
-|---|---|---|
-| `az-platform-owners` | `platform` MG | Owner, PIM eligible only |
-| `az-policy-admins` | Tenant root or platform MG | Resource Policy Contributor |
-| `az-network-admins` | Connectivity subscription | Network Contributor |
-| `az-security-readers` | Tenant root | Security Reader |
-| `az-soc-operators` | Management subscription | Microsoft Sentinel Contributor |
-| `az-app001-devops` | App subscription RG | Contributor |
-| `az-app001-aks-admins` | AKS cluster | Azure Kubernetes Service RBAC Cluster Admin |
-| `az-app001-aks-developers` | AKS namespace | Kubernetes RBAC via Entra-integrated AKS |
-| `az-avd-admins` | AVD subscription | Desktop Virtualization Contributor |
-| `az-avd-helpdesk` | AVD resource groups | Desktop Virtualization User Session Operator |
-
-RBAC controls what identity can do. Azure Policy controls what resource state is allowed. Use both.
-
-## 8. Identity Architecture: Okta to Entra ID
-
-### Target Pattern
-
-Okta remains the workforce identity provider where required, while Microsoft Entra ID becomes the Microsoft cloud authorization and resource access control plane.
-
-Recommended integration:
-
-1. Use SCIM provisioning from Okta to Entra ID for user and group lifecycle where Okta is the identity master.
-2. Use SAML or OIDC federation for Microsoft 365 sign-in only after design validation.
-3. Use Entra Conditional Access for Microsoft cloud access decisions where licensing allows.
-4. Use Entra Privileged Identity Management for privileged Azure and Entra roles.
-5. Maintain two cloud-only break-glass accounts in Entra ID excluded from federation and protected with strong controls.
-
-### Identity Controls
-
-- MFA required for all users.
-- Phishing-resistant MFA for privileged roles.
-- Conditional Access by device compliance, risk, location, and application.
-- Separate admin accounts from daily productivity accounts.
-- Privileged access is eligible, time-bound, approved, and logged.
-- Service principals use federated credentials from GitHub Actions where possible.
-- Managed identities are preferred over client secrets for Azure services.
-
-## 9. Microsoft 365 and Intune Architecture
-
-### Microsoft 365 Security Baseline
-
-- Microsoft Defender XDR enabled and integrated with SOC processes.
-- Exchange Online Protection and Defender for Office policies hardened.
-- Safe Links and Safe Attachments enabled for pilot, then broad deployment.
-- Purview sensitivity labels aligned to data classification.
-- Audit logging enabled.
-- Teams external access and guest access governed by policy.
-- SharePoint sharing defaults restricted and exception-based.
-
-### Intune Baseline
-
-- Devices enrolled into Intune.
-- Compliance policies for Windows, macOS, iOS, and Android.
-- Security baselines for Windows and Microsoft Defender.
-- BitLocker required for Windows.
-- Firewall enabled.
-- Local admin restricted.
-- Endpoint privilege management considered for controlled elevation.
-- Windows Autopilot for corporate Windows provisioning.
-- Update rings for staged patching.
-- Application control and attack surface reduction rules rolled out progressively.
-
-### Conditional Access Dependency
-
-Azure, Microsoft 365, AVD, and administrative portals require compliant device or approved exception.
-
-## 10. Network Architecture
-
-### Topology
-
-Use hub-spoke for predictable enterprise control.
-
-```text
-Connectivity Subscription
-└── Hub VNet
-    ├── Azure Firewall subnet
-    ├── Bastion subnet
-    ├── VPN or ExpressRoute gateway subnet
-    ├── Private DNS Resolver subnet
-    └── Shared services subnet
-
-Application Subscription
-└── App001 Spoke VNet
-    ├── AKS system subnet
-    ├── AKS user node subnet
-    ├── Private endpoint subnet
-    └── App gateway or ingress subnet
-```
-
-### Controls
-
-- Spokes peer to hub.
-- Egress routes to Azure Firewall.
-- No direct internet egress from private workloads.
-- Private DNS zones centrally managed.
-- Private endpoints for Key Vault, ACR, Storage, databases.
-- Network Security Groups and Application Security Groups applied by subnet role.
-- DDoS Network Protection considered for internet-facing production workloads.
-
-## 11. Security Architecture
-
-### Azure Security
-
-- Microsoft Defender for Cloud enabled.
-- Defender plans configured according to workload criticality.
-- Security recommendations triaged by SOC and platform owners.
-- Activity logs exported centrally.
-- Diagnostic settings enforced by policy.
-- Key Vault uses RBAC authorization, purge protection, private endpoint, and soft delete.
-- Secrets are not stored in pipelines or code.
-- Container images are scanned before promotion.
-- AKS uses private cluster, Entra integration, Azure RBAC, workload identity, network policies, and admission controls.
-
-### Logging and Monitoring
-
-Central management subscription hosts:
-
-- Log Analytics workspace
-- Sentinel-ready workspace
-- Automation account where applicable
-- Dashboards and alerts
-- Diagnostic setting targets
-
-Workload teams can have workload-specific workspaces, but security-critical logs also go to central operations.
-
-## 12. Azure Virtual Desktop
-
-AVD is placed in a dedicated `avd` landing zone because EUC has specialized identity, profile, image, and support requirements.
-
-Design decisions:
-
-- Host pools separated by persona, region, and environment.
-- FSLogix profiles on Azure Files or Azure NetApp Files.
-- Session hosts joined to Entra ID or hybrid joined based on application dependency.
-- Intune manages session host configuration where supported.
-- Golden images built through Azure Image Builder or existing enterprise image process.
-- AVD traffic inspected according to enterprise network rules.
-- User access assigned through Entra groups.
-- Helpdesk receives scoped AVD operational roles only.
-
-## 13. First Application Landing Zone
-
-The first application platform uses AKS and containers.
-
-### Resources
-
-- Resource group
-- Spoke VNet
-- Private AKS cluster
-- Azure Container Registry
-- Key Vault
-- User-assigned managed identity
-- Log Analytics workspace integration
-- Azure Monitor managed Prometheus and container insights where licensed/approved
-- Private endpoints
-- Azure Policy add-on for AKS
-- Workload identity
-
-### Container Platform
-
-- Docker builds happen in GitHub Actions or enterprise build system.
-- Images are pushed to ACR.
-- AKS pulls from ACR through managed identity.
-- Kubernetes manifests or Helm charts are deployed through GitOps or controlled pipeline.
-- Admission policies enforce trusted registries, namespace labels, resource limits, non-root containers, and allowed ingress.
-
-## 14. CI/CD Architecture
-
-### Pull Request Workflow
-
-1. Developer changes Terraform or Bicep.
-2. Pull request triggers validation.
-3. Pipeline runs format, init, validate, and plan.
-4. Plan is uploaded as artifact.
-5. Security review checks policy and RBAC changes.
-
-### Apply Workflow
-
-1. Merge to `main`.
-2. Apply workflow targets GitHub `production` environment.
-3. Manual approval required by environment reviewers.
-4. Pipeline authenticates to Azure using OIDC.
-5. Terraform apply runs using remote state.
-6. Outputs are published.
-
-## 15. Terraform and Bicep Strategy
-
-Terraform is the primary enterprise orchestration tool because it can coordinate Azure, GitHub, Okta-adjacent resources, and future multi-cloud needs.
-
-Bicep is included for Azure-native teams and platform modules where direct ARM alignment is preferred.
-
-Recommended pattern:
-
-- Terraform for platform orchestration, state, policy, RBAC, networking, AKS.
-- Bicep for Azure-native module alternatives or teams standardized on Microsoft deployment stacks.
-- Do not mix Terraform and Bicep against the same resource lifecycle unless ownership is explicit.
-
-## 16. Operational Model
-
-### Teams
-
-- Cloud Governance Board: policy, exceptions, controls.
-- Platform Engineering: landing zone code, shared services, pipelines.
-- Identity Team: Okta, Entra, Conditional Access, PIM.
-- Network Team: hub, firewall, routing, DNS.
-- Security Operations: Defender, Sentinel, incident response.
-- EUC Team: Intune, AVD, endpoint baselines.
-- Application Teams: workload code and app-specific infrastructure.
-
-### Change Control
-
-- Normal changes through pull request and pipeline.
-- Emergency changes require incident ticket, limited direct access, and post-change reconciliation back into IaC.
-- Drift is detected by scheduled plan jobs.
-
-## 17. Mermaid Architecture
+## 17. Architecture Diagram
 
 ```mermaid
 flowchart TB
-  Okta["Okta Identity Source"] --> Entra["Microsoft Entra ID"]
-  Entra --> CA["Conditional Access + PIM"]
-  Entra --> M365["Microsoft 365 Security"]
-  Entra --> Intune["Intune Device Compliance"]
-  CA --> AzureRBAC["Azure RBAC Groups"]
+  Okta["Okta Workforce Identity"] --> Entra["Microsoft Entra ID"]
+  Entra --> CA["Conditional Access"]
+  Entra --> PIM["Privileged Identity Management"]
+  Intune["Intune Device Compliance"] --> CA
+  M365["Microsoft 365 Security"] --> SOC["SOC / Defender XDR / Sentinel-ready Ops"]
 
-  GitHub["GitHub Repo"] --> Plan["Terraform/Bicep Plan"]
-  Plan --> Approval["Manual Approval"]
+  GitHub["GitHub Enterprise Repo"] --> PR["Pull Request Review"]
+  PR --> Plan["Terraform Plan / Bicep What-If"]
+  Plan --> Approval["Production Manual Approval"]
   Approval --> Apply["Pipeline Apply via OIDC"]
 
   Apply --> MG["Management Groups"]
   Apply --> Policy["Azure Policy Initiatives"]
+  Apply --> RBAC["RBAC Assignments"]
   Apply --> Hub["Connectivity Hub"]
-  Apply --> Mgmt["Management + Logging"]
-  Apply --> AVD["Azure Virtual Desktop Landing Zone"]
-  Apply --> AppLZ["Application Landing Zone"]
+  Apply --> Mgmt["Management and Logging"]
+  Apply --> AVD["AVD Landing Zone"]
+  Apply --> App["AKS App Landing Zone"]
 
-  Hub --> Spoke["App Spoke VNet"]
-  Spoke --> AKS["Private AKS"]
-  AKS --> ACR["Azure Container Registry"]
+  Hub --> Firewall["Azure Firewall and DNS"]
+  Firewall --> Spoke["Application Spoke VNet"]
+  Spoke --> AKS["Private AKS Cluster"]
+  AKS --> ACR["ACR Premium"]
   AKS --> KV["Key Vault"]
   AKS --> Logs["Log Analytics"]
-  Policy --> AppLZ
-  AzureRBAC --> AppLZ
+  Policy --> App
+  RBAC --> App
+  SOC --> Policy
 ```
 
-## 18. Key Risks
+## 18. Implementation Waves
 
-- Federation mistakes can lock users out. Keep break-glass accounts cloud-only.
-- Policy `deny` too early can block migrations. Start with audit, then enforce.
-- Shared state ownership mistakes can damage production. Use remote state locking and environment separation.
-- AKS without operational maturity is risky. Define patching, ingress, secrets, backup, and incident runbooks before production.
-- Intune baselines can impact user productivity. Deploy in rings.
+| Wave | Outcome |
+|---|---|
+| 0 | Tenant readiness, break-glass, identity groups, GitHub repo, state backend |
+| 1 | Management groups, governance policy, RBAC baseline |
+| 2 | Connectivity hub, DNS, firewall, logging workspace |
+| 3 | Security operations, Defender, diagnostic exports |
+| 4 | AKS landing zone, ACR, Key Vault, workload identity |
+| 5 | Microsoft 365 and Intune enforcement rings |
+| 6 | AVD pilot and production rollout |
+| 7 | Subscription vending and landing-zone factory |
 
-## 19. Next Decisions Needed
+## 19. What Makes This Enterprise
 
-- Tenant ID and root management group name
-- Azure regions and data residency model
-- Subscription vending process
-- Okta integration pattern: federation, provisioning, or both
-- M365 licensing level
-- AVD identity join model
-- Firewall and DNS architecture
-- AKS ingress standard
-- GitHub organization and repository names
-- Production approval group
+This is enterprise architecture because it defines the operating model, not just resources. The platform has standards, guardrails, enforcement, escalation paths, exception handling, identity boundaries, network control, logging, CI/CD discipline, autoscaling, and security ownership.
+
+The IaC in this repository is the start of the platform implementation. The architecture documents define the contract the company operates under.

@@ -33,7 +33,7 @@ module "policy" {
   source               = "../../modules/policy"
   management_group_id  = azurerm_management_group.enterprise.id
   allowed_locations    = var.allowed_locations
-  required_tag_names   = ["CostCenter", "Environment", "Owner", "DataClassification", "BusinessUnit"]
+  required_tag_names   = ["CostCenter", "Environment", "Owner", "DataClassification", "BusinessUnit", "Criticality", "ManagedBy"]
 }
 
 module "rbac" {

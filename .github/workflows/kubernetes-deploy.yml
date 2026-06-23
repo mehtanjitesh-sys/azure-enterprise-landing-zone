@@ -31,3 +31,6 @@ jobs:
 
       - name: Deploy application
         run: kubectl apply -f kubernetes/app001/deployment.yaml
+
+      - name: Deploy autoscaling
+        run: kubectl apply -f kubernetes/app001/hpa.yaml

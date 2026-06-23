@@ -1,14 +1,20 @@
-resource "azurerm_resource_group" "hub" {
-  name     = "rg-${var.prefix}-hub-network"
-  location = var.location
-
+locals {
   tags = {
     Environment        = "prod"
     Owner              = "network-platform"
     CostCenter         = "platform"
     DataClassification = "internal"
     BusinessUnit       = "enterprise-it"
+    Criticality        = "tier0"
+    ManagedBy          = "terraform"
   }
+}
+
+resource "azurerm_resource_group" "hub" {
+  name     = "rg-${var.prefix}-hub-network"
+  location = var.location
+
+  tags = local.tags
 }
 
 resource "azurerm_virtual_network" "hub" {
@@ -16,6 +22,7 @@ resource "azurerm_virtual_network" "hub" {
   location            = azurerm_resource_group.hub.location
   resource_group_name = azurerm_resource_group.hub.name
   address_space       = var.hub_address_space
+  tags                = local.tags
 }
 
 resource "azurerm_subnet" "firewall" {
