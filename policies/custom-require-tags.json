@@ -1,0 +1,24 @@
+{
+  "properties": {
+    "displayName": "Require enterprise tags",
+    "policyType": "Custom",
+    "mode": "Indexed",
+    "parameters": {
+      "tagName": {
+        "type": "String",
+        "metadata": {
+          "displayName": "Required tag name"
+        }
+      }
+    },
+    "policyRule": {
+      "if": {
+        "field": "[concat('tags[', parameters('tagName'), ']')]",
+        "exists": "false"
+      },
+      "then": {
+        "effect": "Deny"
+      }
+    }
+  }
+}

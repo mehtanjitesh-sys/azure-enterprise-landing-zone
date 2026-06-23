@@ -1,0 +1,46 @@
+variable "tenant_root_id" {
+  description = "Root management group ID for the enterprise landing zone."
+  type        = string
+}
+
+variable "location" {
+  description = "Primary Azure region."
+  type        = string
+  default     = "eastus"
+}
+
+variable "allowed_locations" {
+  description = "Allowed Azure deployment regions."
+  type        = list(string)
+  default     = ["eastus", "eastus2", "centralus"]
+}
+
+variable "prefix" {
+  description = "Naming prefix."
+  type        = string
+  default     = "entlz"
+}
+
+variable "platform_group_object_ids" {
+  description = "Entra group object IDs used for platform RBAC."
+  type = object({
+    platform_owners  = string
+    policy_admins    = string
+    network_admins   = string
+    security_readers = string
+    app_devops       = string
+    aks_admins       = string
+  })
+}
+
+variable "address_space" {
+  description = "Network address spaces."
+  type = object({
+    hub_vnet = list(string)
+    app_vnet = list(string)
+  })
+  default = {
+    hub_vnet = ["10.0.0.0/16"]
+    app_vnet = ["10.10.0.0/16"]
+  }
+}

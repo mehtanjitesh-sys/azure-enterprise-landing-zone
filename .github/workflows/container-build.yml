@@ -1,0 +1,37 @@
+name: container-build
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "src/**"
+      - ".github/workflows/container-build.yml"
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: ACR login
+        run: az acr login --name ${{ vars.ACR_NAME }}
+
+      - name: Build container
+        run: docker build -t ${{ vars.ACR_LOGIN_SERVER }}/app001-api:${{ github.sha }} src/app001-api
+
+      - name: Push container
+        run: docker push ${{ vars.ACR_LOGIN_SERVER }}/app001-api:${{ github.sha }}

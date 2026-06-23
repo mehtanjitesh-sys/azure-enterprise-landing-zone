@@ -1,0 +1,23 @@
+tenant_root_id = "contoso"
+location       = "eastus"
+prefix         = "contoso"
+
+allowed_locations = [
+  "eastus",
+  "eastus2",
+  "centralus"
+]
+
+platform_group_object_ids = {
+  platform_owners  = "00000000-0000-0000-0000-000000000001"
+  policy_admins    = "00000000-0000-0000-0000-000000000002"
+  network_admins   = "00000000-0000-0000-0000-000000000003"
+  security_readers = "00000000-0000-0000-0000-000000000004"
+  app_devops       = "00000000-0000-0000-0000-000000000005"
+  aks_admins       = "00000000-0000-0000-0000-000000000006"
+}
+
+address_space = {
+  hub_vnet = ["10.0.0.0/16"]
+  app_vnet = ["10.10.0.0/16"]
+}
