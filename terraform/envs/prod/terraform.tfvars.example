@@ -1,6 +1,8 @@
 tenant_root_id = "contoso"
 location       = "eastus"
 prefix         = "contoso"
+platform_alert_email = "cloud-operations@example.com"
+monthly_budget_amount = 5000
 
 allowed_locations = [
   "eastus",

@@ -44,3 +44,14 @@ variable "address_space" {
     app_vnet = ["10.10.0.0/16"]
   }
 }
+
+variable "platform_alert_email" {
+  description = "Email address for initial platform operations alerts."
+  type        = string
+}
+
+variable "monthly_budget_amount" {
+  description = "Initial monthly budget amount for the subscription."
+  type        = number
+  default     = 5000
+}

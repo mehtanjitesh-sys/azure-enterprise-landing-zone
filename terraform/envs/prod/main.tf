@@ -50,6 +50,14 @@ module "network_hub" {
   hub_address_space   = var.address_space.hub_vnet
 }
 
+module "management_observability" {
+  source                = "../../modules/management-observability"
+  prefix                = var.prefix
+  location              = var.location
+  alert_email           = var.platform_alert_email
+  monthly_budget_amount = var.monthly_budget_amount
+}
+
 module "aks_workload" {
   source            = "../../modules/aks-workload"
   prefix            = var.prefix

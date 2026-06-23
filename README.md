@@ -28,8 +28,11 @@ This is not a tiny demo. It is an enterprise reference implementation that defin
 
 Start here:
 
+- `docs/executive-architecture-decision-pack.md`
 - `docs/architecture.md`
 - `docs/standards/governance-standards.md`
+- `docs/standards/policy-catalog.md`
+- `docs/standards/subscription-vending-standard.md`
 - `docs/standards/security-control-matrix.md`
 - `docs/standards/aks-platform-standard.md`
 - `docs/standards/platform-operating-model.md`
@@ -44,6 +47,7 @@ terraform/
   modules/
     policy/
     rbac/
+    management-observability/
     network-hub/
     aks-workload/
 
@@ -76,6 +80,9 @@ The Terraform implementation includes:
 - AKS private cluster and Azure Policy audits
 - VM SKU control
 - RBAC assignments
+- Management observability workspace
+- Platform action group
+- Subscription budget alerts
 - Hub network starter
 - Private AKS workload landing zone
 - ACR Premium

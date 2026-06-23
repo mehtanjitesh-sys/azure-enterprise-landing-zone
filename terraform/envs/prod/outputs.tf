@@ -13,3 +13,7 @@ output "aks_cluster_name" {
 output "acr_name" {
   value = module.aks_workload.acr_name
 }
+
+output "central_log_analytics_workspace_id" {
+  value = module.management_observability.central_log_analytics_workspace_id
+}

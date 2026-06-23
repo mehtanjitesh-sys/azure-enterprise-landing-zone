@@ -4,6 +4,8 @@
 
 This platform is designed as the controlled cloud foundation for a Fortune 500 enterprise. It assumes Azure is not a side project. Azure is treated as a production-grade operating environment for regulated workloads, global applications, remote workforce capabilities, security operations, and modern container platforms.
 
+For board and steering-committee review, use `docs/executive-architecture-decision-pack.md`. This architecture document is the technical target-state that supports that decision.
+
 The architecture is intentionally opinionated:
 
 - Governance is the first deployment, not an afterthought.
@@ -15,6 +17,37 @@ The architecture is intentionally opinionated:
 - Security, cost, reliability, and operations are engineered into the landing zone.
 
 The goal is to give the company a repeatable cloud factory: standardized subscriptions, automated landing zones, secure connectivity, monitored workloads, governed Kubernetes platforms, and clear operational ownership.
+
+## 1.1 Architecture Approval Scope
+
+Approval of this architecture authorizes the platform team to implement the following enterprise standards:
+
+- CAF-aligned management group hierarchy
+- Mandatory Azure Policy baseline
+- Group-based Azure RBAC model
+- Okta-to-Entra identity integration pattern
+- Intune compliance integration for Microsoft cloud access
+- Hub-spoke networking with controlled egress
+- Central observability and security operations baseline
+- AKS private cluster standard for container workloads
+- AVD landing zone standard
+- Terraform-first IaC operating model
+- GitHub Actions deployment pattern with OIDC and manual production approval
+
+## 1.2 Architecture Decision Record
+
+| Decision | Approved Standard |
+|---|---|
+| Cloud control model | Governance-first landing zone |
+| Resource hierarchy | Management groups aligned to platform and workload domains |
+| Identity control plane | Microsoft Entra ID with Okta integration |
+| Privileged access | Entra PIM and group-based RBAC |
+| Network topology | Hub-spoke with centralized DNS and firewall egress |
+| Production workload runtime | Private AKS for complex container platforms |
+| Endpoint control | Intune compliance integrated with Conditional Access |
+| Deployment model | GitOps/IaC through approved pipelines |
+| Observability | Central Log Analytics and Sentinel-ready operations |
+| Cost accountability | Required tags, budgets, and FinOps reporting |
 
 ## 2. Architecture North Star
 
@@ -458,6 +491,18 @@ flowchart TB
 | 5 | Microsoft 365 and Intune enforcement rings |
 | 6 | AVD pilot and production rollout |
 | 7 | Subscription vending and landing-zone factory |
+
+## 18.1 Executive Milestones
+
+| Milestone | Evidence |
+|---|---|
+| Governance live | Management groups, policy assignments, RBAC baseline deployed |
+| Identity protected | Break-glass tested, privileged roles PIM-enabled, Okta-Entra pattern documented |
+| Network controlled | Hub, firewall path, DNS, and spoke onboarding pattern deployed |
+| Operations visible | Central workspace, action groups, Defender exports, critical diagnostics configured |
+| First app landed | AKS landing zone deployed with ACR, Key Vault, autoscaling, and pipeline |
+| Workforce integrated | Intune compliance and AVD pilot integrated into access model |
+| Cloud factory operational | Subscription vending process and landing-zone modules available |
 
 ## 19. What Makes This Enterprise
 
