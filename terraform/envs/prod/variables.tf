@@ -55,3 +55,20 @@ variable "monthly_budget_amount" {
   type        = number
   default     = 5000
 }
+
+variable "enable_defender_plans" {
+  description = "Enable Microsoft Defender for Cloud paid plans for the production baseline."
+  type        = bool
+  default     = true
+}
+
+variable "security_contact_email" {
+  description = "Security operations email used for Defender for Cloud notifications."
+  type        = string
+}
+
+variable "security_contact_phone" {
+  description = "Security operations phone number used for Defender for Cloud notifications."
+  type        = string
+  default     = "+1-555-0100"
+}

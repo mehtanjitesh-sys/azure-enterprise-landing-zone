@@ -58,6 +58,14 @@ module "management_observability" {
   monthly_budget_amount = var.monthly_budget_amount
 }
 
+module "security_defender" {
+  source                     = "../../modules/security-defender"
+  log_analytics_workspace_id = module.management_observability.central_log_analytics_workspace_id
+  enable_defender_plans      = var.enable_defender_plans
+  security_contact_email     = var.security_contact_email
+  security_contact_phone     = var.security_contact_phone
+}
+
 module "aks_workload" {
   source            = "../../modules/aks-workload"
   prefix            = var.prefix

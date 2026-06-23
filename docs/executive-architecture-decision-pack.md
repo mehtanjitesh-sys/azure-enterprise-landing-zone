@@ -34,6 +34,7 @@ The strategic decision is not whether to use Terraform, Bicep, AKS, Intune, or A
 | Audit readiness | Changes are traceable to Git commits, pull requests, approvals, and deployment logs. |
 | Cost control | Mandatory tags, budgets, and ownership enable chargeback/showback and spend accountability. |
 | Security consistency | Identity, endpoint posture, network access, and cloud resource controls are standardized. |
+| Threat detection maturity | Defender for Cloud, Defender XDR, and Sentinel provide unified cloud and endpoint detection. |
 | Migration acceleration | Migration teams receive repeatable target environments. |
 | Platform scalability | AKS, ACR, Key Vault, and CI/CD patterns support elastic modern applications. |
 | Workforce modernization | AVD and Intune are integrated into the same identity and governance model. |
@@ -71,6 +72,7 @@ These are the defaults for production. Exceptions require documented business ju
 | Endpoints | Intune compliance is a Conditional Access signal. |
 | Deployment | Production changes through Git, plan, approval, pipeline apply. |
 | Logging | Central diagnostic export for production resources. |
+| Defender | Defender for Cloud production plans enabled for servers, containers, storage, Key Vault, SQL, App Service, and Resource Manager. |
 | Cost | Required tags and budgets. |
 
 ## 6. Target-State Operating Model
@@ -113,6 +115,7 @@ flowchart LR
 | Secrets | Key Vault with workload identity | Removes static secrets from workloads and pipelines. |
 | Endpoint control | Intune compliance into Conditional Access | Device posture becomes part of access control. |
 | Production deployment | GitHub Actions with OIDC and manual approval | Traceable, secretless deployment model. |
+| Security operations | Defender XDR plus Sentinel | Unified detection, investigation, response, hunting, and automation. |
 
 ## 8. Risk Register
 
@@ -122,6 +125,7 @@ flowchart LR
 | Policy deny blocks migration workloads | High | Audit-first for migration MG, phased enforcement. |
 | Direct Owner assignments bypass governance | High | PIM, group-only RBAC, access reviews. |
 | Public exposure of sensitive services | Critical | Deny public IP in corp/data, WAF-approved ingress, Defender alerts. |
+| Security tools deployed after workloads | High | Defender and Sentinel-ready baseline deployed as part of platform wave, before production onboarding. |
 | AKS operational immaturity | High | AKS platform standard, runbooks, upgrade policy, autoscaling. |
 | Cost sprawl | Medium | Tags, budgets, FinOps reporting, SKU controls. |
 | Tool fragmentation | Medium | Terraform primary, Bicep controlled exception. |

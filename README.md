@@ -34,6 +34,7 @@ Start here:
 - `docs/standards/policy-catalog.md`
 - `docs/standards/subscription-vending-standard.md`
 - `docs/standards/security-control-matrix.md`
+- `docs/standards/microsoft-defender-security-architecture.md`
 - `docs/standards/aks-platform-standard.md`
 - `docs/standards/platform-operating-model.md`
 - `docs/implementation-runbook.md`
@@ -48,6 +49,7 @@ terraform/
     policy/
     rbac/
     management-observability/
+    security-defender/
     network-hub/
     aks-workload/
 
@@ -83,6 +85,9 @@ The Terraform implementation includes:
 - Management observability workspace
 - Platform action group
 - Subscription budget alerts
+- Microsoft Defender for Cloud workspace connection
+- Microsoft Defender for Cloud production plans
+- Defender for Endpoint and Cloud Apps settings
 - Hub network starter
 - Private AKS workload landing zone
 - ACR Premium

@@ -17,3 +17,7 @@ output "acr_name" {
 output "central_log_analytics_workspace_id" {
   value = module.management_observability.central_log_analytics_workspace_id
 }
+
+output "enabled_defender_resource_types" {
+  value = module.security_defender.enabled_defender_resource_types
+}

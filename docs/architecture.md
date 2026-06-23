@@ -29,6 +29,7 @@ Approval of this architecture authorizes the platform team to implement the foll
 - Intune compliance integration for Microsoft cloud access
 - Hub-spoke networking with controlled egress
 - Central observability and security operations baseline
+- Microsoft Defender for Cloud, Defender XDR, and Sentinel-ready security operations
 - AKS private cluster standard for container workloads
 - AVD landing zone standard
 - Terraform-first IaC operating model
@@ -47,6 +48,7 @@ Approval of this architecture authorizes the platform team to implement the foll
 | Endpoint control | Intune compliance integrated with Conditional Access |
 | Deployment model | GitOps/IaC through approved pipelines |
 | Observability | Central Log Analytics and Sentinel-ready operations |
+| Security platform | Microsoft Defender for Cloud, Defender XDR, Defender for Endpoint, and Sentinel-ready operations |
 | Cost accountability | Required tags, budgets, and FinOps reporting |
 
 ## 2. Architecture North Star
@@ -101,8 +103,11 @@ Reference guidance:
 2. No shared secrets in code, variables, pipeline logs, or container images.
 3. Managed identity and workload identity are preferred over service principal secrets.
 4. Defender for Cloud is enabled for production subscriptions.
-5. Logs required for audit, detection, and incident response are centralized.
-6. Key Vault uses RBAC, soft delete, purge protection, diagnostic settings, and private endpoint for production.
+5. Defender plans are enabled for production servers, containers, storage, Key Vault, SQL, App Service, Resource Manager, and other approved workload types.
+6. Defender XDR is the unified incident experience for Microsoft security signals.
+7. Microsoft Sentinel is the SIEM/SOAR layer for correlation, hunting, automation, and long-term operations.
+8. Logs required for audit, detection, and incident response are centralized.
+9. Key Vault uses RBAC, soft delete, purge protection, diagnostic settings, and private endpoint for production.
 
 ### 4.3 Network
 
@@ -317,6 +322,8 @@ Application Subscription
 - Internet-facing workloads use approved ingress patterns: Azure Front Door + WAF, Application Gateway WAF, or approved ingress controller.
 
 ## 12. Security Operations
+
+Security operations are built around Microsoft Defender and Sentinel-ready telemetry. See `docs/standards/microsoft-defender-security-architecture.md` for the detailed security architecture.
 
 ### 12.1 Logging
 

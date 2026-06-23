@@ -3,6 +3,9 @@ location       = "eastus"
 prefix         = "contoso"
 platform_alert_email = "cloud-operations@example.com"
 monthly_budget_amount = 5000
+enable_defender_plans = true
+security_contact_email = "security-operations@example.com"
+security_contact_phone = "+1-555-0100"
 
 allowed_locations = [
   "eastus",
