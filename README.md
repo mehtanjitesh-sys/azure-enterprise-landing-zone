@@ -49,6 +49,8 @@ Start here:
 - `docs/github-setup.md`
 - `docs/cost/cost-governance.md`
 - `docs/validation/sanitized-terraform-plan.md`
+- `docs/portfolio/readme-audit-checklist.md`
+- `docs/portfolio/github-actions-pipeline-design.md`
 
 ## IaC Structure
 
