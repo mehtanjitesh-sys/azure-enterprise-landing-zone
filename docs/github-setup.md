@@ -20,13 +20,11 @@ Add required reviewers:
 
 ## Secrets
 
-Add these repository secrets so pull request planning and container build workflows can authenticate with OIDC:
+The Azure application, tenant, and subscription IDs are stored in workflow-level YAML `env` values because they are identifiers, not passwords:
 
 - `AZURE_CLIENT_ID`
 - `AZURE_TENANT_ID`
 - `AZURE_SUBSCRIPTION_ID`
-
-Also add the same three secrets to the protected `production` environment if you want production apply and AKS deploy jobs to require environment approval before the credentials are exposed.
 
 Use Microsoft Entra workload identity federation for GitHub Actions instead of long-lived client secrets.
 
