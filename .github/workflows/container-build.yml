@@ -1,12 +1,13 @@
 name: container-build
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - "src/**"
-      - ".github/workflows/container-build.yml"
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: "Container image tag to build and push."
+        required: true
+        default: "manual"
+        type: string
 
 permissions:
   id-token: write
@@ -50,7 +51,7 @@ jobs:
         run: az acr login --name ${{ vars.ACR_NAME }}
 
       - name: Build container
-        run: docker build -t ${{ vars.ACR_LOGIN_SERVER }}/app001-api:${{ github.sha }} src/app001-api
+        run: docker build -t ${{ vars.ACR_LOGIN_SERVER }}/app001-api:${{ github.event.inputs.image_tag }} src/app001-api
 
       - name: Push container
-        run: docker push ${{ vars.ACR_LOGIN_SERVER }}/app001-api:${{ github.sha }}
+        run: docker push ${{ vars.ACR_LOGIN_SERVER }}/app001-api:${{ github.event.inputs.image_tag }}

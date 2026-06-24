@@ -69,4 +69,13 @@ environment: production
 
 GitHub pauses the job until configured production reviewers approve it.
 
-Terraform apply is intentionally manual-only through `workflow_dispatch`. This keeps the public landing-zone repo professional and enterprise-safe: pull requests can validate and plan automatically, but production changes require an explicit run request plus production environment approval.
+Terraform apply, container publish, and AKS deploy are intentionally manual-only through `workflow_dispatch`. This keeps the public landing-zone repo professional and enterprise-safe: pull requests can validate and plan automatically, but production-changing actions require an explicit run request plus production environment approval where applicable.
+
+## Portfolio-Friendly Workflow Behavior
+
+Public portfolio repositories should not continuously fail because tenant-specific Azure secrets are intentionally absent. This repository separates validation from deployment:
+
+- Pull request workflows validate IaC and generate plans.
+- Manual workflows publish containers, deploy Kubernetes manifests, or apply Terraform.
+- Preflight steps fail with direct messages when required secrets or variables are missing.
+- Production workflows should be connected to GitHub environments with required reviewers.

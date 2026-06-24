@@ -9,6 +9,12 @@ This repository is an opinionated Fortune 500-style Azure enterprise landing zon
 
 It is built from the point of view of a principal cloud/platform architect who is responsible for the full company cloud foundation: governance, identity, network, security, operations, Microsoft 365/Intune, AVD, AKS, container workloads, CI/CD, and IaC.
 
+## Portfolio Positioning
+
+This repository is an actively maintained Azure enterprise landing zone reference created as part of my cloud architecture portfolio and professional development work. It is designed to demonstrate how I think through governance, security, identity, automation, operational readiness, and workload onboarding in an enterprise cloud program.
+
+The code is plan-first and tenant-safe by design. Workflows that would deploy or publish to Azure require explicit manual execution, configured GitHub secrets, OIDC federation, and production environment approval.
+
 ## Architecture At A Glance
 
 ```mermaid
@@ -175,9 +181,22 @@ Pull request
   -> Terraform validate and plan
   -> Review
   -> Merge to main
+  -> Manual Terraform apply workflow dispatch
   -> GitHub production environment approval
-  -> Terraform apply through OIDC
+  -> Terraform apply through OIDC federation
 ```
+
+## Validation And Proof
+
+This repo includes the proof signals reviewers expect in a serious infrastructure portfolio:
+
+- GitHub Actions for Terraform validation, Bicep build, Checkov scanning, Terraform plan, manual Terraform apply, manual container publish, and manual AKS deploy
+- Preflight checks that fail with direct missing-secret or missing-variable messages before Azure authentication
+- ADRs explaining major architecture decisions
+- Security architecture covering Microsoft Defender for Cloud, Microsoft Defender for Endpoint, Microsoft Defender for Cloud Apps, RBAC, Azure Policy, Key Vault, private AKS, and workload identity
+- Sanitized Terraform plan evidence in `docs/validation/sanitized-terraform-plan.md`
+- Cost governance and tagging model in `docs/cost/cost-governance.md`
+- Dependabot configuration for GitHub Actions, Terraform, and Docker dependency visibility
 
 ## Important
 

@@ -1,0 +1,28 @@
+name: Architecture decision
+description: Propose or document a landing zone architecture decision.
+title: "ADR: "
+labels:
+  - architecture
+  - decision
+body:
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: What business, governance, security, or platform concern is driving this decision?
+    validations:
+      required: true
+  - type: textarea
+    id: decision
+    attributes:
+      label: Decision
+      description: What decision should be made or documented?
+    validations:
+      required: true
+  - type: textarea
+    id: consequences
+    attributes:
+      label: Consequences
+      description: What tradeoffs, risks, or operational impacts should reviewers understand?
+    validations:
+      required: true

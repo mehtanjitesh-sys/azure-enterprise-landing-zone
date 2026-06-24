@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Portfolio Context
+    url: https://github.com/mehtanjitesh-sys/azure-enterprise-landing-zone
+    about: This is an Azure enterprise landing zone reference repository for architecture and IaC portfolio review.
