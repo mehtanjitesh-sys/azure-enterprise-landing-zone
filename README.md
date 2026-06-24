@@ -1,7 +1,7 @@
 # Azure Enterprise Landing Zone Reference
 
 [![IaC Validation](https://github.com/mehtanjitesh-sys/azure-enterprise-landing-zone/actions/workflows/iac-validation.yml/badge.svg)](https://github.com/mehtanjitesh-sys/azure-enterprise-landing-zone/actions/workflows/iac-validation.yml)
-[![Terraform Plan](https://github.com/mehtanjitesh-sys/azure-enterprise-landing-zone/actions/workflows/terraform-plan.yml/badge.svg)](https://github.com/mehtanjitesh-sys/azure-enterprise-landing-zone/actions/workflows/terraform-plan.yml)
+[![Deployment Model](https://img.shields.io/badge/deploy-manual%20approval-blue)](.github/workflows/terraform-apply.yml)
 [![Security Policy](https://img.shields.io/badge/security-policy-blue)](SECURITY.md)
 [![Release](https://img.shields.io/badge/release-v1.0.0-green)](docs/releases/v1.0.0.md)
 
@@ -16,6 +16,8 @@ This repository is an actively maintained Azure enterprise landing zone referenc
 The code is plan-first and tenant-safe by design. Workflows that would deploy or publish to Azure require explicit manual execution, configured GitHub secrets, OIDC federation, and production environment approval.
 
 ## Architecture At A Glance
+
+![Executive Azure landing zone architecture](docs/diagrams/executive-architecture.png)
 
 ```mermaid
 flowchart TB
@@ -110,6 +112,7 @@ Start here:
 - `docs/standards/aks-platform-standard.md`
 - `docs/standards/platform-operating-model.md`
 - `docs/implementation-runbook.md`
+- `docs/interview-walkthrough.md`
 - `docs/github-setup.md`
 - `docs/cost/cost-governance.md`
 - `docs/validation/sanitized-terraform-plan.md`
@@ -199,6 +202,10 @@ This repo includes the proof signals reviewers expect in a serious infrastructur
 - Dependabot configuration for GitHub Actions, Terraform, and Docker dependency visibility
 
 Checkov is configured as a reporting control rather than a hard failure gate for this public reference repository. In a production enterprise repo, the same findings would be triaged into policy exceptions, remediations, or release-blocking controls based on risk.
+
+## Interview Discussion Guide
+
+In an interview, I would use this repository to discuss why governance comes first, how management groups and policy create guardrails, why Terraform is primary with Bicep as an Azure-native companion, how OIDC removes long-lived deployment secrets, how private AKS changes network and operations design, and how Defender, RBAC, Intune, and Microsoft 365 controls fit into a complete enterprise cloud foundation.
 
 ## Important
 

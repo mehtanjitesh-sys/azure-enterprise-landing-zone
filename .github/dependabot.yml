@@ -4,6 +4,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "github-actions"
@@ -12,6 +13,7 @@ updates:
     directory: "/terraform/envs/prod"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "terraform"
@@ -20,6 +22,7 @@ updates:
     directory: "/src/app001-api"
     schedule:
       interval: "weekly"
+    open-pull-requests-limit: 1
     labels:
       - "dependencies"
       - "docker"

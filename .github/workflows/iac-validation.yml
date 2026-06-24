@@ -1,10 +1,19 @@
 name: iac-validation
 
 on:
+  push:
+    branches:
+      - main
+    paths:
+      - "terraform/**"
+      - "bicep/**"
+      - "kubernetes/**"
+      - ".github/workflows/iac-validation.yml"
   pull_request:
     paths:
       - "terraform/**"
       - "bicep/**"
+      - "kubernetes/**"
       - ".github/workflows/iac-validation.yml"
   workflow_dispatch:
 
@@ -16,6 +25,7 @@ jobs:
   terraform:
     name: terraform-validate
     runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
     defaults:
       run:
         working-directory: terraform/envs/prod
@@ -38,6 +48,7 @@ jobs:
   bicep:
     name: bicep-build
     runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -52,6 +63,7 @@ jobs:
   checkov:
     name: checkov-scan
     runs-on: ubuntu-latest
+    if: ${{ github.actor != 'dependabot[bot]' }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
