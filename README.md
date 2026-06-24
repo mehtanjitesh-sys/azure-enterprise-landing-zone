@@ -9,6 +9,35 @@ This repository is an opinionated Fortune 500-style Azure enterprise landing zon
 
 It is built from the point of view of a principal cloud/platform architect who is responsible for the full company cloud foundation: governance, identity, network, security, operations, Microsoft 365/Intune, AVD, AKS, container workloads, CI/CD, and IaC.
 
+## Architecture At A Glance
+
+```mermaid
+flowchart TB
+  Exec["Executive / Governance"] --> Standards["Enterprise Standards"]
+  Standards --> MG["Management Groups"]
+  Standards --> Policy["Azure Policy"]
+  Standards --> RBAC["RBAC + PIM"]
+
+  Identity["Okta + Microsoft Entra ID"] --> CA["Conditional Access + Intune"]
+  CA --> Azure["Azure Landing Zones"]
+  CA --> M365["Microsoft 365"]
+  CA --> AVD["Azure Virtual Desktop"]
+
+  Azure --> Platform["Platform Subscriptions"]
+  Azure --> Workload["Application Landing Zones"]
+  Platform --> Hub["Hub-Spoke Network"]
+  Platform --> Ops["Log Analytics + Defender + Sentinel-ready SecOps"]
+  Workload --> AKS["Private AKS + ACR + Key Vault"]
+
+  GitHub["GitHub Actions + OIDC"] --> Plan["Validate + Plan"]
+  Plan --> Approval["Manual Approval"]
+  Approval --> Apply["Terraform Apply"]
+  Apply --> Platform
+  Apply --> Workload
+```
+
+**Diagram scope:** This README diagram is a conceptual executive view. See `docs/diagrams/executive-architecture.md` for the decision-maker view and `docs/diagrams/technical-architecture.md` for the logical/deployable view.
+
 ## What This Is
 
 This is not a tiny demo. It is an enterprise reference implementation that defines:
@@ -28,6 +57,35 @@ This is not a tiny demo. It is an enterprise reference implementation that defin
 - Bicep examples for Azure-native teams
 - GitHub Actions plan, manual approval, apply, container build, and AKS deploy flows
 - Kubernetes workload security and autoscaling examples
+
+## Quickstart: Clone To Plan
+
+This quickstart is intentionally plan-first. Do not apply into a real tenant until management group names, subscription IDs, Entra group object IDs, IP ranges, licensing, and approvals are confirmed.
+
+```bash
+git clone https://github.com/mehtanjitesh-sys/azure-enterprise-landing-zone.git
+cd azure-enterprise-landing-zone
+
+# Bootstrap Terraform state once per environment.
+pwsh ./scripts/bootstrap-state.ps1 \
+  -ResourceGroupName rg-tfstate-prod \
+  -StorageAccountName sttfstateprod001 \
+  -Location eastus \
+  -ContainerName tfstate
+
+cd terraform/envs/prod
+cp terraform.tfvars.example terraform.tfvars
+
+terraform init \
+  -backend-config="resource_group_name=rg-tfstate-prod" \
+  -backend-config="storage_account_name=sttfstateprod001" \
+  -backend-config="container_name=tfstate" \
+  -backend-config="key=prod.tfstate"
+
+terraform fmt -recursive ../..
+terraform validate
+terraform plan -out=tfplan
+```
 
 ## Architecture Docs
 
@@ -51,6 +109,7 @@ Start here:
 - `docs/validation/sanitized-terraform-plan.md`
 - `docs/portfolio/readme-audit-checklist.md`
 - `docs/portfolio/github-actions-pipeline-design.md`
+- `docs/portfolio/github-repo-settings.md`
 
 ## IaC Structure
 
