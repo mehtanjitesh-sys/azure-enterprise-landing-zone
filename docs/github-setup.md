@@ -20,21 +20,33 @@ Add required reviewers:
 
 ## Secrets
 
-Add repository secrets:
+Add these repository secrets so pull request planning and container build workflows can authenticate with OIDC:
 
 - `AZURE_CLIENT_ID`
 - `AZURE_TENANT_ID`
 - `AZURE_SUBSCRIPTION_ID`
 
+Also add the same three secrets to the protected `production` environment if you want production apply and AKS deploy jobs to require environment approval before the credentials are exposed.
+
 Use Microsoft Entra workload identity federation for GitHub Actions instead of long-lived client secrets.
 
 ## Variables
 
-Add repository or environment variables:
+Add these repository variables for automated validation, planning, and build workflows:
 
 - `TF_STATE_RG`
 - `TF_STATE_STORAGE_ACCOUNT`
 - `TF_STATE_CONTAINER`
+- `ACR_NAME`
+- `ACR_LOGIN_SERVER`
+
+Add these variables to the protected `production` environment for deployment workflows:
+
+- `TF_STATE_RG`
+- `TF_STATE_STORAGE_ACCOUNT`
+- `TF_STATE_CONTAINER`
+- `AKS_RESOURCE_GROUP`
+- `AKS_CLUSTER_NAME`
 
 ## Branch Protection
 
@@ -56,3 +68,5 @@ environment: production
 ```
 
 GitHub pauses the job until configured production reviewers approve it.
+
+Terraform apply is intentionally manual-only through `workflow_dispatch`. This keeps the public landing-zone repo professional and enterprise-safe: pull requests can validate and plan automatically, but production changes require an explicit run request plus production environment approval.
