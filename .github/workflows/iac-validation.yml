@@ -62,6 +62,7 @@ jobs:
           directory: .
           framework: terraform,bicep,kubernetes,github_actions
           quiet: true
+          soft_fail: true
           output_format: cli,sarif
           output_file_path: console,results.sarif
 

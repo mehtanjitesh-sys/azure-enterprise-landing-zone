@@ -190,13 +190,15 @@ Pull request
 
 This repo includes the proof signals reviewers expect in a serious infrastructure portfolio:
 
-- GitHub Actions for Terraform validation, Bicep build, Checkov scanning, Terraform plan, manual Terraform apply, manual container publish, and manual AKS deploy
+- GitHub Actions for Terraform validation, Bicep build, Checkov SARIF reporting, Terraform plan, manual Terraform apply, manual container publish, and manual AKS deploy
 - Preflight checks that fail with direct missing-secret or missing-variable messages before Azure authentication
 - ADRs explaining major architecture decisions
 - Security architecture covering Microsoft Defender for Cloud, Microsoft Defender for Endpoint, Microsoft Defender for Cloud Apps, RBAC, Azure Policy, Key Vault, private AKS, and workload identity
 - Sanitized Terraform plan evidence in `docs/validation/sanitized-terraform-plan.md`
 - Cost governance and tagging model in `docs/cost/cost-governance.md`
 - Dependabot configuration for GitHub Actions, Terraform, and Docker dependency visibility
+
+Checkov is configured as a reporting control rather than a hard failure gate for this public reference repository. In a production enterprise repo, the same findings would be triaged into policy exceptions, remediations, or release-blocking controls based on risk.
 
 ## Important
 

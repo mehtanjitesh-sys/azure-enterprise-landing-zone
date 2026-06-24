@@ -1,24 +1,11 @@
-targetScope = 'subscription'
+targetScope = 'resourceGroup'
 
 param location string
 param prefix string
 param aksAdminGroupObjectId string
 
-resource rg 'Microsoft.Resources/resourceGroups@2024-03-01' = {
-  name: 'rg-${prefix}-app001-prod'
-  location: location
-  tags: {
-    Environment: 'prod'
-    Owner: 'app001-team'
-    CostCenter: 'app001'
-    DataClassification: 'confidential'
-    BusinessUnit: 'digital'
-  }
-}
-
 resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
   name: 'vnet-${prefix}-app001-prod'
-  scope: rg
   location: location
   properties: {
     addressSpace: {
@@ -45,7 +32,6 @@ resource vnet 'Microsoft.Network/virtualNetworks@2024-05-01' = {
 
 resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
   name: 'law-${prefix}-app001-prod'
-  scope: rg
   location: location
   properties: {
     sku: {
@@ -57,7 +43,6 @@ resource law 'Microsoft.OperationalInsights/workspaces@2023-09-01' = {
 
 resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
   name: replace('acr${prefix}app001prod', '-', '')
-  scope: rg
   location: location
   sku: {
     name: 'Premium'
@@ -69,7 +54,6 @@ resource acr 'Microsoft.ContainerRegistry/registries@2023-11-01-preview' = {
 
 resource aks 'Microsoft.ContainerService/managedClusters@2024-05-01' = {
   name: 'aks-${prefix}-app001-prod'
-  scope: rg
   location: location
   identity: {
     type: 'SystemAssigned'
@@ -100,7 +84,7 @@ resource aks 'Microsoft.ContainerService/managedClusters@2024-05-01' = {
           '2'
           '3'
         ]
-        vnetSubnetID: resourceId(rg.name, 'Microsoft.Network/virtualNetworks/subnets', vnet.name, 'snet-aks-system')
+        vnetSubnetID: resourceId('Microsoft.Network/virtualNetworks/subnets', vnet.name, 'snet-aks-system')
       }
     ]
     networkProfile: {

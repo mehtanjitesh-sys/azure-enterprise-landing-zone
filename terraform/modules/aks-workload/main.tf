@@ -72,25 +72,25 @@ resource "azurerm_key_vault" "app" {
 data "azurerm_client_config" "current" {}
 
 resource "azurerm_kubernetes_cluster" "app" {
-  name                    = "aks-${var.prefix}-app001-prod"
-  location                = azurerm_resource_group.app.location
-  resource_group_name     = azurerm_resource_group.app.name
-  dns_prefix              = "aks-${var.prefix}-app001-prod"
-  kubernetes_version      = null
-  private_cluster_enabled = true
-  oidc_issuer_enabled     = true
+  name                      = "aks-${var.prefix}-app001-prod"
+  location                  = azurerm_resource_group.app.location
+  resource_group_name       = azurerm_resource_group.app.name
+  dns_prefix                = "aks-${var.prefix}-app001-prod"
+  kubernetes_version        = null
+  private_cluster_enabled   = true
+  oidc_issuer_enabled       = true
   workload_identity_enabled = true
-  tags                    = local.tags
+  tags                      = local.tags
 
   default_node_pool {
-    name                 = "system"
-    vm_size              = "Standard_D4ds_v5"
-    vnet_subnet_id       = azurerm_subnet.aks_system.id
-    zones                = ["1", "2", "3"]
-    enable_auto_scaling  = true
-    min_count            = 3
-    max_count            = 6
-    orchestrator_version = null
+    name                         = "system"
+    vm_size                      = "Standard_D4ds_v5"
+    vnet_subnet_id               = azurerm_subnet.aks_system.id
+    zones                        = ["1", "2", "3"]
+    enable_auto_scaling          = true
+    min_count                    = 3
+    max_count                    = 6
+    orchestrator_version         = null
     only_critical_addons_enabled = true
   }
 
@@ -123,15 +123,15 @@ resource "azurerm_kubernetes_cluster" "app" {
   }
 
   auto_scaler_profile {
-    balance_similar_node_groups      = true
-    expander                         = "least-waste"
-    max_graceful_termination_sec     = "600"
-    scale_down_delay_after_add       = "10m"
-    scale_down_delay_after_delete    = "10s"
-    scale_down_delay_after_failure   = "3m"
-    scan_interval                    = "10s"
-    skip_nodes_with_local_storage    = false
-    skip_nodes_with_system_pods      = true
+    balance_similar_node_groups    = true
+    expander                       = "least-waste"
+    max_graceful_termination_sec   = "600"
+    scale_down_delay_after_add     = "10m"
+    scale_down_delay_after_delete  = "10s"
+    scale_down_delay_after_failure = "3m"
+    scan_interval                  = "10s"
+    skip_nodes_with_local_storage  = false
+    skip_nodes_with_system_pods    = true
   }
 }
 

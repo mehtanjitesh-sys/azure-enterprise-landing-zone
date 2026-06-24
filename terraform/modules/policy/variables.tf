@@ -11,7 +11,7 @@ variable "required_tag_names" {
 }
 
 variable "allowed_vm_skus" {
-  type    = list(string)
+  type = list(string)
   default = [
     "Standard_D2s_v5",
     "Standard_D4s_v5",

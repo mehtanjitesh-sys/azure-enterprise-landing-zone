@@ -16,23 +16,25 @@ resource allowedLocationsPolicy 'Microsoft.Authorization/policyDefinitions@2023-
         }
       }
     }
-    policyRule: {
-      if: {
-        allOf: [
-          {
-            field: 'location'
-            notIn: '[parameters(''allowedLocations'')]'
-          }
-          {
-            field: 'location'
-            notEquals: 'global'
-          }
-        ]
+    policyRule: json('''
+      {
+        "if": {
+          "allOf": [
+            {
+              "field": "location",
+              "notIn": "[parameters('allowedLocations')]"
+            },
+            {
+              "field": "location",
+              "notEquals": "global"
+            }
+          ]
+        },
+        "then": {
+          "effect": "Deny"
+        }
       }
-      then: {
-        effect: 'Deny'
-      }
-    }
+    ''')
   }
 }
 

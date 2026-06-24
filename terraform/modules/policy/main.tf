@@ -30,7 +30,7 @@ resource "azurerm_policy_definition" "allowed_locations" {
           notIn = "[parameters('allowedLocations')]"
         },
         {
-          field = "location"
+          field     = "location"
           notEquals = "global"
         }
       ]
@@ -77,9 +77,9 @@ resource "azurerm_policy_definition" "deny_public_ip" {
 
   parameters = jsonencode({
     effect = {
-      type = "String"
+      type          = "String"
       allowedValues = ["Audit", "Deny", "Disabled"]
-      defaultValue = "Deny"
+      defaultValue  = "Deny"
     }
   })
 
@@ -197,9 +197,9 @@ resource "azurerm_policy_definition" "audit_key_vault_purge_protection" {
 
   parameters = jsonencode({
     effect = {
-      type = "String"
+      type          = "String"
       allowedValues = ["Audit", "Deny", "Disabled"]
-      defaultValue = "Audit"
+      defaultValue  = "Audit"
     }
   })
 
@@ -235,9 +235,9 @@ resource "azurerm_policy_definition" "audit_aks_private_cluster" {
 
   parameters = jsonencode({
     effect = {
-      type = "String"
+      type          = "String"
       allowedValues = ["Audit", "Deny", "Disabled"]
-      defaultValue = "Audit"
+      defaultValue  = "Audit"
     }
   })
 
@@ -347,11 +347,11 @@ resource "azurerm_policy_set_definition" "enterprise_baseline" {
       type = "Array"
     }
     denyPublicIpEffect = {
-      type = "String"
+      type          = "String"
       allowedValues = ["Audit", "Deny", "Disabled"]
     }
     auditEffect = {
-      type = "String"
+      type          = "String"
       allowedValues = ["Audit", "Deny", "Disabled"]
     }
   })

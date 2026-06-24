@@ -30,10 +30,10 @@ resource "azurerm_management_group" "online" {
 }
 
 module "policy" {
-  source               = "../../modules/policy"
-  management_group_id  = azurerm_management_group.enterprise.id
-  allowed_locations    = var.allowed_locations
-  required_tag_names   = ["CostCenter", "Environment", "Owner", "DataClassification", "BusinessUnit", "Criticality", "ManagedBy"]
+  source              = "../../modules/policy"
+  management_group_id = azurerm_management_group.enterprise.id
+  allowed_locations   = var.allowed_locations
+  required_tag_names  = ["CostCenter", "Environment", "Owner", "DataClassification", "BusinessUnit", "Criticality", "ManagedBy"]
 }
 
 module "rbac" {
@@ -44,10 +44,10 @@ module "rbac" {
 }
 
 module "network_hub" {
-  source              = "../../modules/network-hub"
-  prefix              = var.prefix
-  location            = var.location
-  hub_address_space   = var.address_space.hub_vnet
+  source            = "../../modules/network-hub"
+  prefix            = var.prefix
+  location          = var.location
+  hub_address_space = var.address_space.hub_vnet
 }
 
 module "management_observability" {
@@ -67,9 +67,9 @@ module "security_defender" {
 }
 
 module "aks_workload" {
-  source            = "../../modules/aks-workload"
-  prefix            = var.prefix
-  location          = var.location
-  app_address_space = var.address_space.app_vnet
+  source             = "../../modules/aks-workload"
+  prefix             = var.prefix
+  location           = var.location
+  app_address_space  = var.address_space.app_vnet
   aks_admin_group_id = var.platform_group_object_ids.aks_admins
 }
