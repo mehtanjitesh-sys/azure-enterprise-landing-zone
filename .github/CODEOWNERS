@@ -1,0 +1,8 @@
+# Default repository owners.
+* @mehtanjitesh-sys
+
+# Platform architecture and IaC.
+/terraform/ @mehtanjitesh-sys
+/bicep/ @mehtanjitesh-sys
+/docs/ @mehtanjitesh-sys
+/.github/ @mehtanjitesh-sys

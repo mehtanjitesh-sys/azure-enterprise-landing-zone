@@ -1,0 +1,72 @@
+name: iac-validation
+
+on:
+  pull_request:
+    paths:
+      - "terraform/**"
+      - "bicep/**"
+      - ".github/workflows/iac-validation.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  terraform:
+    name: terraform-validate
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform/envs/prod
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform fmt
+        run: terraform fmt -check -recursive ../..
+
+      - name: Terraform init without backend
+        run: terraform init -backend=false
+
+      - name: Terraform validate
+        run: terraform validate
+
+  bicep:
+    name: bicep-build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Azure CLI bicep build
+        uses: azure/cli@v2
+        with:
+          inlineScript: |
+            az bicep install
+            az bicep build --file bicep/main.bicep
+
+  checkov:
+    name: checkov-scan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Run Checkov
+        uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: .
+          framework: terraform,bicep,kubernetes,github_actions
+          quiet: true
+          output_format: cli,sarif
+          output_file_path: console,results.sarif
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: results.sarif

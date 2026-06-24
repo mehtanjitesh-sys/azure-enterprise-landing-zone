@@ -1,5 +1,10 @@
 # Azure Enterprise Landing Zone Reference
 
+[![IaC Validation](https://github.com/mehtanjitesh-sys/azure-enterprise-landing-zone/actions/workflows/iac-validation.yml/badge.svg)](https://github.com/mehtanjitesh-sys/azure-enterprise-landing-zone/actions/workflows/iac-validation.yml)
+[![Terraform Plan](https://github.com/mehtanjitesh-sys/azure-enterprise-landing-zone/actions/workflows/terraform-plan.yml/badge.svg)](https://github.com/mehtanjitesh-sys/azure-enterprise-landing-zone/actions/workflows/terraform-plan.yml)
+[![Security Policy](https://img.shields.io/badge/security-policy-blue)](SECURITY.md)
+[![Release](https://img.shields.io/badge/release-v1.0.0-green)](docs/releases/v1.0.0.md)
+
 This repository is an opinionated Fortune 500-style Azure enterprise landing zone blueprint.
 
 It is built from the point of view of a principal cloud/platform architect who is responsible for the full company cloud foundation: governance, identity, network, security, operations, Microsoft 365/Intune, AVD, AKS, container workloads, CI/CD, and IaC.
@@ -30,6 +35,9 @@ Start here:
 
 - `docs/executive-architecture-decision-pack.md`
 - `docs/architecture.md`
+- `docs/diagrams/executive-architecture.md`
+- `docs/diagrams/technical-architecture.md`
+- `docs/adr/`
 - `docs/standards/governance-standards.md`
 - `docs/standards/policy-catalog.md`
 - `docs/standards/subscription-vending-standard.md`
@@ -39,6 +47,8 @@ Start here:
 - `docs/standards/platform-operating-model.md`
 - `docs/implementation-runbook.md`
 - `docs/github-setup.md`
+- `docs/cost/cost-governance.md`
+- `docs/validation/sanitized-terraform-plan.md`
 
 ## IaC Structure
 
