@@ -43,7 +43,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Azure CLI bicep build
-        uses: azure/cli@v2
+        uses: azure/cli@v3
         with:
           inlineScript: |
             az bicep install
